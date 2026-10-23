@@ -1,0 +1,62 @@
+[
+  {
+    "question": "What is autoregressive retrieval augmentation?",
+    "answer": "Based on the provided context, autoregressive retrieval augmentation (specifically AR-RAG) is a patch-level or patch-based retrieval method designed for image generation [1, 3, 4]. \n\nUnlike conventional image-level retrieval augmentation approaches\u2014which tend to excessively copy retrieved images and fail to follow user prompts [1]\u2014autoregressive retrieval augmentation utilizes a patch-based retrieval database to retrieve relevant image patches/tokens to augment the generation process within an autoregressive (AR) model [1, 4, 5].",
+    "top_score": 0.6060628294944763,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "How does MusT-RAG handle music question answering?",
+    "answer": "MusT-RAG handles music question answering (MQA) by adapting general-purpose LLMs to the music domain using a Retrieval-Augmented Generation (RAG) framework [1], [4]. Specifically, it operates through the following process:\n\n1. **Retrieval**: A retriever searches for relevant passages/information in MusWikiDB (a music-specific vector database) based on similarity to the music-related query [1], [2], [3].\n2. **Prompt Augmentation**: The framework augments the generator's prompt with the retrieved information [2], [3].\n3. **Answer Generation**: The generator utilizes the retrieved external context to ground its responses in evidence, producing more accurate and contextually appropriate answers [4], [5].",
+    "top_score": 0.7051181793212891,
+    "top_source": "2507.23334v2.pdf"
+  },
+  {
+    "question": "What datasets were used to evaluate the AR-RAG paper?",
+    "answer": "I don't have enough information.",
+    "top_score": 0.5507580041885376,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "What is the main limitation of standard RAG systems?",
+    "answer": "I don't have enough information.",
+    "top_score": 0.5167701244354248,
+    "top_source": "2510.25621v1.pdf"
+  },
+  {
+    "question": "How does agentic RAG improve Quran question answering?",
+    "answer": "Based on the provided context, agentic RAG improves Quran question answering by:\n\n* Using structured tool calls to interact with a Qur\u2019anic toolset [4, 5].\n* Enabling multi-step evidence gathering and iterative evidence seeking before generating a cited answer [4, 5].\n* Allowing for answer revision [4].\n* Improving overall correctness through retrieval [4].",
+    "top_score": 0.7087228298187256,
+    "top_source": "2601.07528v2.pdf"
+  },
+  {
+    "question": "What is the role of FAISS in retrieval?",
+    "answer": "I don't have enough information.",
+    "top_score": 0.47975343465805054,
+    "top_source": "2510.25621v1.pdf"
+  },
+  {
+    "question": "What evaluation metrics are used for image generation?",
+    "answer": "Based on the provided context, the evaluation metrics used for image generation include:\n\n* **Fr\u00e9chet Inception Distance (FID):** Measures the statistical similarity between the distributions of generated and real images in the feature space of a pre-trained Inception network [3].\n* **CLIP-MMD (CMMD)** [3].\n* **GenEval Metric / Score:** Evaluates models based on the percentage of generated images that correctly align with the text descriptions [2], reported as an overall score [4].\n* **DPG-Bench Scores:** Measures model performance across categories such as global image quality, entity generation, attribute accuracy, and relationship modeling, reported as percentages [2], [3].",
+    "top_score": 0.7461709976196289,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "How does patch-level retrieval differ from image-level retrieval?",
+    "answer": "Based on the provided context, patch-level retrieval differs from image-level retrieval in the following ways:\n\n* **Image-level retrieval** operates at the full image level and suffers from key challenges: it tends to excessively copy retrieved reference images, overcopy irrelevant visual details, and fail to follow user prompts [2].\n* **Patch-level retrieval** (used in AR-RAG) retrieves specific image patches rather than entire images. It uses local representations (such as eight-neighborhood representations extracted for patch positions in a partially generated image) as queries to retrieve the top-$K$ most similar patches from a patch database, constructing position-specific distributions and integrating the patch representations directly into the model's layers [3], [4].",
+    "top_score": 0.6817543506622314,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "What is the recipe for chocolate cake?",
+    "answer": "I don't have enough information.",
+    "top_score": 0.2031906694173813,
+    "top_source": "1912.02145v1.pdf"
+  },
+  {
+    "question": "Who won the 2022 FIFA World Cup?",
+    "answer": "I don't have enough information.",
+    "top_score": 0.238,
+    "top_source": "2404.14464v1.pdf"
+  }
+]

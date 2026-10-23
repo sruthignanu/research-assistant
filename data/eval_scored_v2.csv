@@ -1,0 +1,36 @@
+question,answer,top_score,top_source
+What is autoregressive retrieval augmentation?,"Autoregressive Retrieval Augmentation (AR-RAG) is a paradigm for image generation that enhances the generation process by autoregressively incorporating $k$-nearest neighbor retrievals at the patch level [3]. In this method, image patches function as retrieval queries and keys to retrieve patch values that assist in predicting the next image patches [1, 3], addressing limitations found in conventional image-level retrieval augmentation approaches [4].",0.5502432584762573,2506.06962v3.pdf
+How does MusT-RAG handle music question answering?,"MusT-RAG handles music question answering by using a Retrieval-Augmented Generation (RAG) framework to adapt general-purpose large language models (LLMs) to the music domain [1], [3], [4]. Specifically, it operates by:
+
+1. **Retrieving relevant knowledge:** It retrieves relevant passages from a music-specialized vector database, MusWikiDB, to provide external music knowledge [1], [4].
+2. **Incorporating context into generation:** It feeds the retrieved passages into the generation context alongside the question, which grounds the model's responses in retrieved evidence and mitigates factual limitations [1], [2], [4].
+3. **Utilizing context across inference and fine-tuning:** It uses context information during both inference and fine-tuning processes (using highly relevant gold passages during fine-tuning) to train the model to effectively extract and rely on contextual information [2], [4].",0.7012935876846313,2507.23334v2.pdf
+What datasets were used to evaluate the AR-RAG paper?,"Based on the provided context, AR-RAG was evaluated on three benchmarks:
+
+* Midjourney-30K [1]
+* Geneval [1]
+* DPG-Bench [1]",0.5403996706008911,2506.06962v3.pdf
+What is the main limitation of standard RAG systems?,"Based on the provided context, the limitations of standard (or conventional/naive) RAG systems include:
+
+* **Overloaded semantic representation:** A standard RAG system treats a query as a single, overloaded semantic vector, causing it to struggle with simultaneously resolving multiple, multi-step entities. This often leads to retrieving incomplete documents or general documents that lack required specific details [3].
+* **Lack of refinement and filtering:** Standard/naive RAG relies on a simple single retrieval pass on the raw query and generates an answer without any filtering or refinement steps [4].
+* **Inability to dynamically adapt:** Unlike iterative systems, conventional RAG does not adaptively decompose complex queries, critically assess the sufficiency of retrieved evidence, or use an iterative loop to fill information gaps [1, 5].",0.45167261362075806,2510.25621v1.pdf
+How does agentic RAG improve Quran question answering?,"Agentic RAG improves Quran question answering in the following ways:
+
+* **Iterative retrieval and revision:** Instead of relying on a single-pass preprocessing step, it turns retrieval into an iterative evidence-seeking process [2] that uses structured tool calls for continuous evidence seeking and answer revision [4].
+* **Greater correctness:** It yields the largest improvements in correctness beyond standard RAG [2, 4].
+* **State-of-the-art performance and bilingual robustness:** It achieves state-of-the-art performance and provides stronger Arabic–English robustness across models, even with smaller LLMs [4].",0.7466067671775818,2601.07528v2.pdf
+What is the role of FAISS in retrieval?,I don't have enough information.,0.47794628143310547,2510.25621v1.pdf
+What evaluation metrics are used for image generation?,"Based on the provided context, the evaluation metrics used for image generation (specifically evaluated on the Midjourney-30k benchmark) are:
+
+* **FID**: Measures the statistical similarity between generated and real image distributions [4].
+* **CMMD**: Assesses alignment with human perception using CLIP embeddings [4].
+* **FWD**: Evaluates spatial and frequency coherence through wavelet packet coefficients [4].
+
+For these three metrics, lower scores indicate higher quality generated images [2], [4]. Additionally, an **overall score** is used to evaluate models on the GenEval benchmark [5].",0.6162518262863159,2506.06962v3.pdf
+How does patch-level retrieval differ from image-level retrieval?,"Based on the provided context, the differences between patch-level retrieval and image-level retrieval include:
+
+* **Susceptibility to Overcopying and Prompt Adherence:** Conventional image-level retrieval methods (such as ImageRAG) suffer from critical challenges, including failing to follow user prompts and excessively overcopying irrelevant visual elements from the retrieved reference images into generation outputs [3]. 
+* **Granularity and Representation:** Instead of retrieving entire images, patch-level retrieval operates by encoding images into sequences of patch-level representations using an image tokenizer/quantized autoencoder [2, 4, 5]. In this setup, individual patch vectors serve as database values (with representations of their $h$-hop surrounding patches as keys) [5], and the contributions of these retrieved patches are directly incorporated into the representation during decoding [2, 4].",0.6510202884674072,2506.06962v3.pdf
+What is the recipe for chocolate cake?,I don't have enough information.,0.20064376294612885,1912.02145v1.pdf
+Who won the 2022 FIFA World Cup?,I don't have enough information.,0.2263781875371933,2601.07528v2.pdf

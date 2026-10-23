@@ -4,3 +4,16 @@ venv/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+.env
+venv/
+__pycache__/
+.ipynb_checkpoints/
+data/papers/
+data/*.pkl
+data/*.faiss
+data/titles.json
+notebooks/*_old.ipynb
+notebooks/*-Copy*.ipynb
+data/*_backup.*
+data/*.index
+data/eval_scored.csv

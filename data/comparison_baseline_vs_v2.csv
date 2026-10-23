@@ -1,0 +1,3 @@
+setup,Hit@1,answered,answer score (answerable only),overall score (all 10),fully correct
+baseline (500-char chunks),88%,5/8 (62%),0.56,0.65,4/8
+v2 (sentence-aware chunks),88%,7/8 (88%),0.88,0.9,7/8
