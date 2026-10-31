@@ -1,0 +1,62 @@
+[
+  {
+    "question": "What is autoregressive retrieval augmentation?",
+    "answer": "**Autoregressive Retrieval Augmentation (AR-RAG)** is a retrieval-augmented paradigm for image generation that dynamically and autoregressively incorporates patch-level $k$-nearest-neighbor ($k$-NN) retrievals throughout the generation process [2], [4]. \n\nUnlike conventional methods that rely on static, coarse-grained retrievals of entire reference images using text captions, AR-RAG performs fine-grained, step-wise retrieval of visual features at the image patch level based on the evolving image context [4], [5].",
+    "top_score": 0.5502432584762573,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "How does MusT-RAG handle music question answering?",
+    "answer": "Based on the provided context, MusT-RAG handles text-only music question answering (MQA) through the following methods:\n\n* **Retrieval-Augmented Generation (RAG):** It adapts general-purpose LLMs by retrieving relevant passages/context from an external music-specific database and incorporating them into the answer generation process [1], [2], [3].\n* **Music-Specific Database (MusWikiDB):** It utilizes MusWikiDB, a specialized vector database designed for the retrieval stage to provide domain-specific knowledge faster and more effectively [2], [3], [4].\n* **Dual-Stage Context Utilization (Inference and Fine-Tuning):** It incorporates context information during both:\n  * **RAG Inference:** Implementing RAG at inference time using a base model (e.g., Llama 3.1 8B Instruct) paired with MusWikiDB [3], [5].\n  * **RAG Fine-Tuning:** Training the model on augmented datasets formatted as (context, question, answer), which resolves contextual understanding issues found in conventional fine-tuning [3], [4], [5].",
+    "top_score": 0.7012935876846313,
+    "top_source": "2507.23334v2.pdf"
+  },
+  {
+    "question": "What datasets were used to evaluate the AR-RAG paper?",
+    "answer": "Based on the provided context, AR-RAG was evaluated on the following three benchmarks/datasets:\n\n* Midjourney-30K [2], [4]\n* GenEval [2], [4]\n* DPG-Bench [2], [4]",
+    "top_score": 0.5403996706008911,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "What is the main limitation of standard RAG systems?",
+    "answer": "Based on the context, the main limitations of standard RAG systems include:\n\n* **Single-step retrieval:** Standard RAG relies on single-shot retrieval, failing to account for the fact that retrieval for many questions is not a one-step operation and requires iterative evidence collection, disambiguation, and query refinement [1], [3], [5].\n* **Handling complex/multi-hop queries as a single vector:** A standard RAG framework treats a query as a \"single, overloaded semantic vector\" [2], [4]. Because of this, it struggles to simultaneously resolve separate, multi-step entities or parallel lines of reasoning, often resulting in retrieving documents about only one entity or retrieving general documents that lack required specific details [2], [4].",
+    "top_score": 0.43022042512893677,
+    "top_source": "2601.07528v2.pdf"
+  },
+  {
+    "question": "How does agentic RAG improve Quran question answering?",
+    "answer": "Based on the provided context, Agentic RAG improves Quran question answering in the following ways:\n\n* **Iterative evidence-seeking:** It achieves greater correctness gains than standard RAG by turning retrieval into an iterative evidence-seeking process rather than a one-pass preprocessing step [4].\n* **Explicit decision-making via tool use:** It turns retrieval into an explicit decision process using structured tool calls, such as semantic search, verse reading, and metadata lookup [5].\n* **Faithfulness and verification:** It improves faithfulness and groundedness through iterative search, tool use, and verification when supported by reliable retrieval and orchestration [3].",
+    "top_score": 0.746606707572937,
+    "top_source": "2601.07528v2.pdf"
+  },
+  {
+    "question": "What is the role of FAISS in retrieval?",
+    "answer": "Based on the provided context, the FAISS library is used to implement the retriever for efficient similarity search [5].",
+    "top_score": 0.4617110788822174,
+    "top_source": "2404.14464v1.pdf"
+  },
+  {
+    "question": "What evaluation metrics are used for image generation?",
+    "answer": "Based on the provided context, the following evaluation metrics are used for image generation:\n\n* **FID:** Measures the statistical similarity between generated and real image distributions [2], [3].\n* **CMMD:** Assesses alignment with human perception using CLIP embeddings [2], [3].\n* **FWD:** Evaluates spatial and frequency coherence through wavelet packet coefficients [2], [3].\n\nAdditionally, the models are evaluated using benchmark scores from:\n* **GenEval:** Measures the ability to generate images with specific attributes and relationships described in text prompts [1], [2], [3].\n* **DPG-Bench:** Evaluates performance on detailed prompts with complex requirements [2], [3].",
+    "top_score": 0.5443289875984192,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "How does patch-level retrieval differ from image-level retrieval?",
+    "answer": "Based on the provided context, patch-level retrieval differs from image-level retrieval in the following ways:\n\n* **Avoids over-copying whole images:** Conventional image-level retrieval tends to excessively copy and incorporate irrelevant visual elements from full reference images into the generated output, often failing to follow user prompts [2]. In contrast, patch-level retrieval allows for the precise integration of visual elements without overcommitting to entire reference images, avoiding over-copying or irrelevant conditioning [4], [5].\n* **Dynamically adjusts to local generation needs:** Patch-level retrieval uses the evolving generation context as retrieval queries to dynamically inform and enhance the prediction of the next patch [4]. This ensures that visual references stay relevant throughout generation and encourages local semantic coherence [4].",
+    "top_score": 0.6510202884674072,
+    "top_source": "2506.06962v3.pdf"
+  },
+  {
+    "question": "What is the recipe for chocolate cake?",
+    "answer": "I don't have enough information. (score gate)",
+    "top_score": 0.1451261043548584,
+    "top_source": "-"
+  },
+  {
+    "question": "Who won the 2022 FIFA World Cup?",
+    "answer": "I don't have enough information. (score gate)",
+    "top_score": 0.2050246298313141,
+    "top_source": "-"
+  }
+]

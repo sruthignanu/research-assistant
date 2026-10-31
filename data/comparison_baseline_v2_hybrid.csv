@@ -1,0 +1,4 @@
+setup,Hit@1,Hit@5,answered,answer score (answerable only),overall score (all 10),fully correct
+baseline (500-char chunks),88%,88%,5/8 (62%),0.56,0.65,4/8
+v2 (sentence-aware chunks),88%,88%,7/8 (88%),0.88,0.9,7/8
+v2 + hybrid search,88%,100%,8/8 (100%),1.0,1.0,8/8
