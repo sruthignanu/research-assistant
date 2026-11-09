@@ -51,7 +51,7 @@ TARGET, MAX_CHARS, OVERLAP_SENT = 800, 1000, 1   # same chunking as 02b_rechunk.
 POOL, RRF_K, W_SPARSE = 30, 60, 2.0               # hybrid search (weight 2 tested in 05_evaluation_v2)
 STOP = set("what is the role of in a an and or to how does do are were was for with on by from "
            "this that these those it its as at be used use".split())
-ARXIV_MIN_SIM = 0.40                 # arXiv suggestions must be at least this similar to the question
+ARXIV_MIN_SIM = 0.45                 # arXiv suggestions must be at least this similar to the question
 SHOW_RELATED_MIN = 0.45              # show 'related papers in your library' only above this score
 MIN_SCORE = 0.30                     # below this, the question is not about the papers (saves API calls)
 
@@ -187,6 +187,8 @@ def db_init():
                 CREATE TABLE IF NOT EXISTS history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, answer TEXT,
                     sources TEXT, created_at TEXT);
+                CREATE TABLE IF NOT EXISTS api_usage (
+                    day TEXT, model TEXT, calls INTEGER, PRIMARY KEY (day, model));
             """)
     finally:
         con.close()
@@ -217,6 +219,21 @@ def db_log(question, answer, results):
     srcs = ", ".join(sorted({r["source"] for r in results}))
     db_exec("INSERT INTO history(question, answer, sources, created_at) VALUES(?,?,?,?)",
             (question, answer, srcs, now()))
+
+
+def db_count_call(model_name):
+    """Count one Gemini request for today (never raises, so it cannot break an answer)."""
+    try:
+        db_exec("""INSERT INTO api_usage(day, model, calls) VALUES(?,?,1)
+                   ON CONFLICT(day, model) DO UPDATE SET calls = calls + 1""",
+                (datetime.now().strftime("%Y-%m-%d"), model_name))
+    except Exception:
+        pass
+
+
+def db_calls_today():
+    rows = db_query("SELECT model, calls FROM api_usage WHERE day = ?", (datetime.now().strftime("%Y-%m-%d"),))
+    return {r["model"]: r["calls"] for r in rows}
 
 
 db_init()
@@ -257,7 +274,7 @@ sources = sorted(titles)
 
 
 # ---------------- Gemini ----------------
-def generate(prompt, model_name):
+def generate(prompt, model_name, timeout_s=None):
     if client is None:
         raise RuntimeError("GEMINI_API_KEY not found. Put it in a `.env` file next to app.py.")
     backup = (st.session_state.get("backup_model") or "").strip()
@@ -266,6 +283,7 @@ def generate(prompt, model_name):
     busy = ("503", "unavailable", "overloaded", "disconnected", "eof", "ssl", "connection", "reset",
             "temporary failure", "remote end closed", "remoteprotocol", "readerror", "connecterror")
     waits = (4, 8)                                                     # seconds before the 2nd and 3rd attempt
+    max_attempts = max(1, min(3, int(st.session_state.get("gemini_attempts", 2))))   # every attempt costs quota
     last = ""
     cfg = None
     if st.session_state.get("fast_mode"):     # ask for less "thinking" so the answer comes back sooner
@@ -273,10 +291,17 @@ def generate(prompt, model_name):
             cfg = types.GenerateContentConfig(thinking_config=types.ThinkingConfig(thinking_level="low"))
         except Exception:
             cfg = None                        # this SDK version does not know the option
+    if timeout_s:                             # a longer wait for this call only (the default client timeout is 60 s)
+        try:
+            cfg = cfg or types.GenerateContentConfig()
+            cfg.http_options = types.HttpOptions(timeout=int(timeout_s * 1000))
+        except Exception:
+            pass
     for name in models:                       # main model first, then the optional backup model
         attempts = 0
-        while attempts < 3:
+        while attempts < max_attempts:
             try:
+                db_count_call(name)
                 return (client.models.generate_content(model=name, contents=prompt, config=cfg).text or "").strip()
             except Exception as e:
                 last = f"{type(e).__name__}: {e}"
@@ -288,7 +313,7 @@ def generate(prompt, model_name):
                     break                     # the quota is per model, so the backup model may still work
                 attempts += 1
                 is_slow = any(t in low for t in slow)
-                if (is_slow or any(t in low for t in busy)) and attempts < (2 if is_slow else 3):
+                if (is_slow or any(t in low for t in busy)) and attempts < (min(2, max_attempts) if is_slow else max_attempts):
                     time.sleep(waits[attempts - 1])
                     continue
                 break
@@ -388,7 +413,8 @@ Answer using ONLY the context below. The context has up to three kinds of items:
 - "Library": passages from the user's own papers. Prefer these, they are the most reliable.
 - "arXiv" or "Semantic Scholar": abstracts only (not the full text) of papers that are not in the library.
   When you rely on one, say that it comes from the abstract of an online paper and name the paper.
-If the context doesn't contain the answer, say "I don't have enough information in the papers to answer that."
+If the context answers the question only partly, give what it supports and say clearly what is missing.
+Only if the context contains nothing relevant, say "I don't have enough information in the papers to answer that."
 Cite sources inline as [1], [2], etc. Mention the paper by topic when comparing papers.
 Be clear and well organised; use short bullets when helpful.
 
@@ -412,8 +438,8 @@ def summarize_paper(pdf_name, model_name):
     if not pc:
         return f"No text found for {pdf_name}."
     n = len(pc)
-    idx = (set(range(min(12, n))) | set(range(max(0, n // 2 - 6), min(n, n // 2 + 6)))
-           | set(range(max(0, n - 10), n)))
+    idx = (set(range(min(8, n))) | set(range(max(0, n // 2 - 3), min(n, n // 2 + 3)))
+           | set(range(max(0, n - 8), n)))           # opening (problem), middle (method), end (results)
     context = "\n\n".join(pc[i] for i in sorted(idx))
     prompt = f"""Summarize this research paper using exactly this structure. Use only the text below.
 
@@ -427,7 +453,7 @@ Paper text:
 {context}
 
 Summary:"""
-    return generate(prompt, model_name)
+    return generate(prompt, model_name, timeout_s=120)       # summaries are longer, so allow 2 minutes
 
 
 # ---------------- Upload ----------------
@@ -586,7 +612,7 @@ def arxiv_search(query, n=8):
             break
         except urllib.error.HTTPError as e:
             if e.code in (429, 503) and attempt == 0:
-                time.sleep(3)
+                time.sleep(5)
                 continue
             raise
         except (TimeoutError, urllib.error.URLError):          # slow or briefly unreachable: try once more
@@ -820,6 +846,12 @@ def render_sidebar():
                                    help="Change this if you hit a daily quota on one model.")
         st.text_input("Backup Gemini model (optional)", key="backup_model",
                       help="Used automatically when the main model is busy (503) or out of quota (429).")
+        st.number_input("Gemini attempts per model", 1, 3, 2, key="gemini_attempts",
+                        help="Every attempt, even a failed one, may count toward the free daily limit. Lower = saves quota.")
+        used = db_calls_today()
+        st.caption("Gemini requests sent today by this app: "
+                   + (", ".join(f"{m}: {n}" for m, n in used.items()) if used else "0")
+                   + " (free tier: about 20 per day per model)")
         st.toggle("Fast mode (less thinking, experimental)", key="fast_mode",
                   help="Asks Gemini to think less so answers arrive sooner. Ignored if your model does not support it.")
         gc1, gc2 = st.columns(2)
@@ -896,15 +928,22 @@ with tab_chat:
                 if m.get("results"):
                     render_evidence(m["results"])
                 render_suggestions(m, idx)
-                if (m["role"] == "assistant" and m["content"].startswith("⚠️")
+                retriable = any(("rate limit" in n_ or "could not be reached" in n_) for n_ in (m.get("notes") or []))
+                if (m["role"] == "assistant" and (m["content"].startswith("⚠️") or retriable)
                         and idx == len(st.session_state.messages) - 1 and idx >= 1):
-                    if st.button("🔁 Retry the answer", key=f"retry_{idx}"):
+                    label = "🔁 Retry online search and answer again" if retriable else "🔁 Retry the answer"
+                    if st.button(label, key=f"retry_{idx}"):
                         question = st.session_state.messages[idx - 1]["content"]
-                        with st.spinner("Asking Gemini again..."):
-                            web = m.get("new") if m.get("web_offset") is not None else None
+                        with st.spinner("Searching again and asking Gemini..." if retriable else "Asking Gemini again..."):
+                            new, notes = m.get("new") or [], m.get("notes") or []
+                            if retriable and suggest_new and not scope:
+                                new, notes = find_new_papers(question, min_sim=arxiv_cut,
+                                                             use_arxiv="arXiv" in web_sources,
+                                                             use_s2="Semantic Scholar" in web_sources)
+                            web = new if (use_web and new) else None
                             ans, res = answer_question(question, st.session_state.messages[:idx - 1], k,
                                                        scope or None, model_name, hybrid=hybrid, web=web)
-                        m["content"], m["results"] = ans, res
+                        m["content"], m["results"], m["new"], m["notes"] = ans, res, new, notes
                         m["web_offset"] = len(res) if web else None
                         if not ans.startswith("⚠️"):
                             show = res and not is_refusal(ans) and max(r["score"] for r in res) >= SHOW_RELATED_MIN
@@ -980,7 +1019,7 @@ with tab_sum:
                         db_save_summary(selected, text, model_name)
                     saved = {"summary": text, "model": model_name, "created_at": now()}
                 except Exception as e:
-                    st.error(str(e))
+                    st.error(f"{e}\n\nTry again in a minute, or set a Backup Gemini model in the sidebar.")
         if saved:
             st.caption(f"Saved {saved['created_at']} · {saved['model']} · stored in the local database, "
                        "so showing it again costs no API request")
